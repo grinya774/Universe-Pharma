@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+  <rect width="400" height="500" fill="#1a1a3a" rx="20"/>
+  <rect x="130" y="80" width="140" height="30" rx="5" fill="#7986cb"/>
+  <rect x="120" y="110" width="160" height="320" rx="20" fill="#fff" stroke="#7986cb" stroke-width="2"/>
+  <text x="200" y="195" text-anchor="middle" fill="#1a1a3a" font-family="sans-serif" font-weight="700" font-size="15">OMEGA-3</text>
+  <text x="200" y="220" text-anchor="middle" fill="#7986cb" font-family="sans-serif" font-size="11">PREMIUM</text>
+  <text x="200" y="260" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="10">1000 mg EPA/DHA</text>
+  <text x="200" y="380" text-anchor="middle" fill="#1a1a3a" font-family="sans-serif" font-weight="600" font-size="12">UNIVERSE PHARMA</text>
+</svg>
