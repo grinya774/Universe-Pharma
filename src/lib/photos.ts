@@ -4,7 +4,7 @@ export function photoUrl(filename: string) {
   return `${base}${encodeURIComponent(filename)}`
 }
 
-/** Реальные карточки WB/Ozon из public/photo */
+/** Карточки WB/Ozon из public/photo */
 export const photos = {
   zinc: photoUrl('photo_2026-05-28_22-51-10.jpg'),
   iron: photoUrl('photo_2026-05-28_22-51-10 (2).jpg'),

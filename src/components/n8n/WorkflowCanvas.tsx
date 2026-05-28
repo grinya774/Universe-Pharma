@@ -8,7 +8,12 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import N8nNode from './N8nNode'
-import { workflowNodes, workflowEdges, nodePayloads } from '../../data/workflowNodes'
+import {
+  workflowNodes,
+  workflowEdges,
+  nodePayloads,
+  executionSteps,
+} from '../../data/workflowNodes'
 
 const nodeTypes = { n8n: N8nNode }
 
@@ -32,38 +37,47 @@ export default function WorkflowCanvas({ running, onComplete }: Props) {
       return
     }
 
-    let i = 0
-    const ids = workflowNodes.map((n) => n.id)
+    let stepIndex = 0
+    const completedEdges = new Set<string>()
 
-    const tick = () => {
-      if (i >= ids.length) {
-        onComplete()
-        return
-      }
-
-      const currentId = ids[i]
-
+    const highlightNodes = (activeIds: string[]) => {
       setNodes((nds) =>
         nds.map((n) => ({
           ...n,
           data: {
             ...n.data,
-            active: n.id === currentId,
-            payload: n.id === currentId ? nodePayloads[n.id] : undefined,
+            active: activeIds.includes(n.id),
+            payload: activeIds.includes(n.id) ? nodePayloads[n.id] : undefined,
           },
         })),
       )
+    }
 
+    const tick = () => {
+      if (stepIndex >= executionSteps.length) {
+        onComplete()
+        return
+      }
+
+      const activeIds = executionSteps[stepIndex]
+      highlightNodes(activeIds)
+
+      // Подсветить входящие рёбра к активным узлам
       setEdges((eds) =>
-        eds.map((e, idx) => ({
-          ...e,
-          animated: idx < i,
-          style: idx < i ? { stroke: '#2dd4a8', strokeWidth: 2 } : {},
-        })),
+        eds.map((e) => {
+          const targetActive = activeIds.includes(e.target)
+          const shouldAnimate = targetActive || completedEdges.has(e.id)
+          if (targetActive) completedEdges.add(e.id)
+          return {
+            ...e,
+            animated: shouldAnimate,
+            style: shouldAnimate ? { stroke: '#2dd4a8', strokeWidth: 2 } : {},
+          }
+        }),
       )
 
-      i++
-      setTimeout(tick, 800)
+      stepIndex++
+      setTimeout(tick, 900)
     }
 
     tick()
@@ -78,13 +92,13 @@ export default function WorkflowCanvas({ running, onComplete }: Props) {
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.1 }}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.35 }}
+        fitViewOptions={{ padding: 0.08 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.28 }}
         proOptions={{ hideAttribution: true }}
         panOnDrag
         zoomOnScroll
-        minZoom={0.3}
-        maxZoom={1.5}
+        minZoom={0.15}
+        maxZoom={1.2}
       >
         <Background color="#333" gap={20} size={1} />
         <Controls className="!bg-surface !border-white/10 !rounded-lg [&>button]:!bg-surface-2 [&>button]:!border-white/10 [&>button]:!text-white" />

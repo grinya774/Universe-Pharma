@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import PageShell from '../components/PageShell'
 import Marquee from '../components/Marquee'
-import ProductCard from '../components/ProductCard'
+import ProductCarousel from '../components/ProductCarousel'
 import { products } from '../lib/products'
 import { photos } from '../lib/photos'
 
@@ -109,19 +109,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Products — snap scroll */}
-      <section className="py-12 md:py-24 bg-surface">
-        <div className="px-4 mb-6">
+      {/* Products carousel */}
+      <section className="py-10 md:py-24 bg-surface">
+        <div className="px-4 mb-4">
           <h2 className="font-display font-bold text-2xl md:text-5xl">Карточки WB & Ozon</h2>
-          <p className="text-muted text-sm mt-1">Реальные инфографики товаров</p>
         </div>
-        <div className="overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-          <div className="flex gap-4 px-4 w-max">
-            {products.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
-            ))}
-          </div>
-        </div>
+        <ProductCarousel products={products} />
       </section>
 
       {/* Marketplace showcase with photos */}
@@ -134,17 +127,16 @@ export default function HomePage() {
               <h3 className="font-display font-bold text-xl mb-4" style={{ color: '#CB11AB' }}>
                 Wildberries
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {[photos.iron, photos.omega, photos.collagen, photos.magnesiumLipo].map((src, i) => (
+              <div className="grid grid-cols-3 gap-2">
+                {[photos.iron, photos.omega, photos.collagen].map((src, i) => (
                   <motion.img
                     key={i}
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
                     src={src}
                     alt="WB"
-                    className="w-full rounded-xl border border-white/10 shadow-lg"
+                    className="w-full rounded-lg border border-white/10"
                     loading="lazy"
                   />
                 ))}
@@ -155,17 +147,16 @@ export default function HomePage() {
               <h3 className="font-display font-bold text-xl mb-4" style={{ color: '#005BFF' }}>
                 Ozon
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {[photos.zinc, photos.magnesium, photos.d3k2, photos.omega].map((src, i) => (
+              <div className="grid grid-cols-3 gap-2">
+                {[photos.zinc, photos.magnesium, photos.d3k2].map((src, i) => (
                   <motion.img
                     key={i}
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
                     src={src}
                     alt="Ozon"
-                    className="w-full rounded-xl border border-white/10 shadow-lg"
+                    className="w-full rounded-lg border border-white/10"
                     loading="lazy"
                   />
                 ))}

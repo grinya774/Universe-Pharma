@@ -14,7 +14,7 @@ export default function TelegramBotPage() {
         <div className="flex items-center justify-between px-4 py-2 bg-[#17212b] border-b border-white/5 flex-shrink-0 pt-[env(safe-area-inset-top)]">
           <div>
             <p className="text-white text-sm font-medium">Universe Pharma Bot</p>
-            <p className="text-[#6ab2f2] text-[10px]">@universepharma • demo</p>
+            <p className="text-[#6ab2f2] text-[10px]">@universepharma • online</p>
           </div>
           <button
             type="button"
@@ -50,7 +50,7 @@ export default function TelegramBotPage() {
               onClick={() => setChatKey((k) => k + 1)}
               className="px-6 py-3 bg-[#2AABEE] text-white font-semibold rounded-full"
             >
-              ▶ Перезапустить демо
+              ▶ Перезапустить
             </button>
           </div>
           <div className="flex justify-center lg:justify-end">

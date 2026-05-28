@@ -75,6 +75,10 @@ export default function TelegramChat({ autoPlay = true }: Props) {
     scrollToBottom()
 
     const scenario = getScenarioKey(label)
+    if (scenario === 'menu') {
+      setTimeout(() => playMessages(demoScenarios.start), 500)
+      return
+    }
     const scenarioMsgs = demoScenarios[scenario] ?? demoScenarios.vitamins
     setTimeout(() => playMessages(scenarioMsgs), 600)
   }
@@ -162,17 +166,26 @@ export default function TelegramChat({ autoPlay = true }: Props) {
       </div>
 
       {activeButtons.length > 0 && (
-        <div className="px-2 pb-1 space-y-1">
-          {activeButtons.map((btn, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => handleButton(btn.label)}
-              className="w-full py-2 bg-[#182533] hover:bg-[#1f2d3d] rounded-lg text-[#6ab2f2] text-[13px] font-medium transition-colors"
-            >
-              {btn.emoji && `${btn.emoji} `}{btn.label}
-            </button>
-          ))}
+        <div className="px-2 pb-1">
+          <div className="grid grid-cols-2 gap-1.5">
+            {activeButtons.map((btn, i) => {
+              const isMenu = btn.label.includes('Главное меню')
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleButton(btn.label)}
+                  className={`py-2.5 rounded-lg text-[12px] font-medium transition-colors ${
+                    isMenu
+                      ? 'col-span-2 bg-[#2AABEE]/20 text-[#6ab2f2] border border-[#2AABEE]/30'
+                      : 'bg-[#182533] text-[#6ab2f2]'
+                  }`}
+                >
+                  {btn.label}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 

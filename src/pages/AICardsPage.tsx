@@ -14,7 +14,7 @@ const phaseLabels: Record<GenerationPhase, string> = {
 }
 
 export default function AICardsPage() {
-  const [imageUrl, setImageUrl] = useState<string | null>(photos.zinc)
+  const [sourceUrl, setSourceUrl] = useState<string | null>(photos.zinc)
   const [marketplace, setMarketplace] = useState<Marketplace>('wb')
   const [category, setCategory] = useState<CardCategory>('vitamins')
   const [phase, setPhase] = useState<GenerationPhase>('idle')
@@ -23,11 +23,9 @@ export default function AICardsPage() {
   const [typingDone, setTypingDone] = useState(false)
   const [toast, setToast] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const handleFile = (file: File) => {
-    const url = URL.createObjectURL(file)
-    setImageUrl(url)
+    setSourceUrl(URL.createObjectURL(file))
     setResult(null)
     setPhase('idle')
     setTypedText('')
@@ -48,25 +46,24 @@ export default function AICardsPage() {
   }
 
   const handleGenerate = async () => {
-    if (!imageUrl) return
+    if (!sourceUrl) return
     setResult(null)
     setTypedText('')
 
-    const res = await generateCard({ imageUrl, marketplace, category }, setPhase)
+    const res = await generateCard({ imageUrl: sourceUrl, marketplace, category }, setPhase)
     setResult(res)
     typeText(res.description)
   }
 
   const handleDownload = useCallback(() => {
-    if (!imageUrl) return
+    if (!result?.imageUrl) return
     const link = document.createElement('a')
     link.download = `universe-pharma-${marketplace}.jpg`
-    link.href = imageUrl
-    link.target = '_blank'
+    link.href = result.imageUrl
     link.click()
     setToast('Сохранено')
     setTimeout(() => setToast(''), 2500)
-  }, [imageUrl, marketplace])
+  }, [result, marketplace])
 
   const generating = phase !== 'idle' && phase !== 'done'
 
@@ -79,17 +76,16 @@ export default function AICardsPage() {
         </div>
 
         <div className="space-y-5">
-          {/* Catalog picker — real photos */}
           <div>
-            <p className="text-[10px] text-muted uppercase tracking-wider mb-2">Выберите товар</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 snap-x scrollbar-hide">
+            <p className="text-[10px] text-muted uppercase tracking-wider mb-2">Исходник</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {products.map((p) => (
                 <button
                   key={p.id}
                   type="button"
-                  onClick={() => { setImageUrl(p.image); setResult(null); setPhase('idle') }}
-                  className={`flex-shrink-0 w-14 h-[4.5rem] rounded-lg overflow-hidden border-2 snap-center ${
-                    imageUrl === p.image ? 'border-mint' : 'border-transparent'
+                  onClick={() => { setSourceUrl(p.image); setResult(null); setPhase('idle') }}
+                  className={`flex-shrink-0 w-14 h-[4.5rem] rounded-lg overflow-hidden border-2 ${
+                    sourceUrl === p.image ? 'border-mint' : 'border-transparent'
                   }`}
                 >
                   <img src={p.image} alt={p.nameRu} className="w-full h-full object-cover" />
@@ -110,7 +106,7 @@ export default function AICardsPage() {
             onClick={() => fileRef.current?.click()}
             className="w-full py-2.5 glass rounded-xl text-sm text-muted"
           >
-            📸 Загрузить своё фото
+            📸 Загрузить фото
           </button>
 
           <div className="flex gap-2">
@@ -142,7 +138,7 @@ export default function AICardsPage() {
           <button
             type="button"
             onClick={handleGenerate}
-            disabled={!imageUrl || generating}
+            disabled={!sourceUrl || generating}
             className="w-full py-3.5 bg-mint text-bg font-semibold rounded-xl text-sm disabled:opacity-40"
           >
             {generating ? phaseLabels[phase] : '✨ Сгенерировать карточку'}
@@ -159,16 +155,18 @@ export default function AICardsPage() {
             </div>
           )}
 
-          {result && imageUrl && (
+          {result && (
             <div className="space-y-4">
-              <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-                <div
-                  className="text-[10px] font-bold text-white px-3 py-1.5"
-                  style={{ background: marketplace === 'wb' ? '#CB11AB' : '#005BFF' }}
-                >
-                  {marketplace === 'wb' ? 'WILDBERRIES' : 'OZON'} — готово
+              <p className="text-[10px] text-muted uppercase tracking-wider">До → После</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-xl overflow-hidden border border-white/10">
+                  <p className="text-[9px] bg-white/10 px-2 py-1 text-muted">Исходник</p>
+                  {sourceUrl && <img src={sourceUrl} alt="До" className="w-full" />}
                 </div>
-                <img src={imageUrl} alt="Карточка" className="w-full" />
+                <div className="rounded-xl overflow-hidden border-2 border-mint/50 shadow-lg shadow-mint/10">
+                  <p className="text-[9px] bg-mint/20 px-2 py-1 text-mint">AI карточка</p>
+                  <img src={result.imageUrl} alt="После" className="w-full" />
+                </div>
               </div>
 
               <div className="glass rounded-xl p-4">
@@ -186,7 +184,7 @@ export default function AICardsPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setToast('Опубликовано на ' + (marketplace === 'wb' ? 'WB' : 'Ozon'))
+                    setToast('Опубликовано')
                     setTimeout(() => setToast(''), 2500)
                   }}
                   className="flex-1 py-3 bg-mint/20 text-mint rounded-xl text-sm"
@@ -198,8 +196,6 @@ export default function AICardsPage() {
           )}
         </div>
       </div>
-
-      <canvas ref={canvasRef} className="hidden" />
 
       {toast && (
         <div className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-4 right-4 bg-mint text-bg px-4 py-3 rounded-xl z-50 text-sm text-center">
