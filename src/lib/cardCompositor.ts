@@ -1,17 +1,6 @@
+import { products } from './products'
 import type { Marketplace } from './cardGenerator'
 import type { CardCategory } from './products'
-
-const benefits: Record<CardCategory, string[]> = {
-  vitamins: ['GMP • HALAL', 'Без диоксида титана', 'Made in Türkiye', 'Премиум сырьё'],
-  iron: ['Максимальная усвояемость', 'С витаминами B', 'Рекомендовано врачами', '150 мл • 30 порций'],
-  probiotic: ['50 млрд КОЕ', '18 штаммов', 'Веган', 'Без ГМО'],
-}
-
-const titles: Record<CardCategory, string> = {
-  vitamins: 'ПРЕМИУМ\nВИТАМИНЫ',
-  iron: 'БИОДОСТУПНОЕ\nЖЕЛЕЗО',
-  probiotic: 'ПРОБИОТИК\nПРЕМИУМ',
-}
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -23,100 +12,43 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
-/** Генерирует стилизованную карточку маркетплейса из фото товара */
-export async function composeMarketplaceCard(
-  sourceUrl: string,
-  marketplace: Marketplace,
-  category: CardCategory,
-): Promise<string> {
-  const w = marketplace === 'wb' ? 900 : 1000
-  const h = marketplace === 'wb' ? 1200 : 1000
+/** Находим полную карточку маркетплейса по исходному фото */
+export function getFullCardImage(sourceUrl: string): string {
+  const product = products.find((p) => p.image === sourceUrl)
+  return product?.image ?? sourceUrl
+}
 
+/** «Вырезаем» баночку — центральный кроп на белом фоне */
+export async function cropProductImage(sourceUrl: string): Promise<string> {
+  const img = await loadImage(sourceUrl)
+  const size = 400
   const canvas = document.createElement('canvas')
-  canvas.width = w
-  canvas.height = h
+  canvas.width = size
+  canvas.height = size
   const ctx = canvas.getContext('2d')!
-  const isWb = marketplace === 'wb'
-  const accent = isWb ? '#CB11AB' : '#005BFF'
-  const accent2 = isWb ? '#9b0d85' : '#003db8'
 
-  // Фон
-  const bg = ctx.createLinearGradient(0, 0, w * 0.6, h)
-  bg.addColorStop(0, '#f8f9fa')
-  bg.addColorStop(0.5, '#ffffff')
-  bg.addColorStop(1, isWb ? '#f3e8f8' : '#e8f0ff')
-  ctx.fillStyle = bg
-  ctx.fillRect(0, 0, w, h)
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, size, size)
 
-  // Декор
-  ctx.fillStyle = accent + '12'
-  ctx.beginPath()
-  ctx.arc(w * 0.85, h * 0.2, w * 0.35, 0, Math.PI * 2)
-  ctx.fill()
+  const sw = img.width * 0.35
+  const sh = img.height * 0.55
+  const sx = (img.width - sw) / 2
+  const sy = img.height * 0.15
 
-  // Шапка маркетплейса
-  const headerGrad = ctx.createLinearGradient(0, 0, w, 0)
-  headerGrad.addColorStop(0, accent)
-  headerGrad.addColorStop(1, accent2)
-  ctx.fillStyle = headerGrad
-  ctx.fillRect(0, 0, w, 56)
-  ctx.fillStyle = '#fff'
-  ctx.font = 'bold 22px Inter, Arial, sans-serif'
-  ctx.fillText(isWb ? 'WILDBERRIES' : 'OZON', 24, 36)
+  ctx.drawImage(img, sx, sy, sw, sh, 40, 30, size - 80, size - 60)
 
-  // Бренд
-  ctx.fillStyle = '#1a5c4a'
-  ctx.font = 'bold 16px Inter, Arial, sans-serif'
-  ctx.fillText('UNIVERSE PHARMA', 24, 88)
+  ctx.strokeStyle = '#e0e0e0'
+  ctx.lineWidth = 2
+  ctx.strokeRect(20, 20, size - 40, size - 40)
 
-  // Заголовок
-  ctx.fillStyle = '#111'
-  ctx.font = 'bold 32px Syne, Arial, sans-serif'
-  const titleLines = titles[category].split('\n')
-  titleLines.forEach((line, i) => {
-    ctx.fillText(line, 24, 130 + i * 38)
-  })
+  return canvas.toDataURL('image/jpeg', 0.9)
+}
 
-  // Бейджи слева
-  const badges = benefits[category]
-  badges.forEach((b, i) => {
-    const y = 220 + i * 52
-    ctx.fillStyle = '#2dd4a8'
-    ctx.beginPath()
-    ctx.arc(40, y + 14, 18, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.fillStyle = '#fff'
-    ctx.font = 'bold 14px Inter, sans-serif'
-    ctx.fillText(String(i + 1), 40 - 4, y + 19)
-    ctx.fillStyle = '#333'
-    ctx.font = '500 15px Inter, sans-serif'
-    ctx.fillText(b, 68, y + 19)
-  })
-
-  // Фото товара
-  try {
-    const productImg = await loadImage(sourceUrl)
-    const pw = w * 0.42
-    const ph = h * 0.55
-    const px = w - pw - 24
-    const py = h * 0.22
-
-    ctx.shadowColor = 'rgba(0,0,0,0.25)'
-    ctx.shadowBlur = 30
-    ctx.shadowOffsetY = 12
-    ctx.drawImage(productImg, px, py, pw, ph)
-    ctx.shadowColor = 'transparent'
-  } catch {
-    ctx.fillStyle = '#ddd'
-    ctx.fillRect(w * 0.5, h * 0.25, w * 0.4, h * 0.5)
-  }
-
-  // Низ
-  ctx.fillStyle = accent
-  ctx.fillRect(0, h - 72, w, 72)
-  ctx.fillStyle = '#fff'
-  ctx.font = 'bold 18px Inter, sans-serif'
-  ctx.fillText('Made in Türkiye • GMP • HALAL', 24, h - 32)
-
-  return canvas.toDataURL('image/jpeg', 0.92)
+export async function animateRevealCard(
+  _sourceUrl: string,
+  fullCardUrl: string,
+  _marketplace: Marketplace,
+  _category: CardCategory,
+): Promise<string> {
+  return fullCardUrl
 }

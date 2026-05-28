@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import PageShell from '../components/PageShell'
 import { generateCard, type GenerationPhase, type Marketplace } from '../lib/cardGenerator'
 import type { CardCategory } from '../lib/products'
@@ -7,8 +8,8 @@ import { photos } from '../lib/photos'
 
 const phaseLabels: Record<GenerationPhase, string> = {
   idle: '',
-  'bg-remove': 'Удаляем фон…',
-  infographic: 'Генерируем инфографику…',
+  'bg-remove': 'Вырезаем упаковку…',
+  infographic: 'Собираем карточку с текстом…',
   description: 'Пишем SEO-описание…',
   done: 'Готово!',
 }
@@ -66,47 +67,33 @@ export default function AICardsPage() {
   }, [result, marketplace])
 
   const generating = phase !== 'idle' && phase !== 'done'
+  const showCropped = Boolean(result?.croppedUrl)
+  const showFull = Boolean(result?.imageUrl) && (phase === 'infographic' || phase === 'description' || phase === 'done')
 
   return (
     <PageShell>
-      <div className="max-w-lg md:max-w-7xl mx-auto px-4 py-6 md:py-12">
-        <div className="mb-6">
-          <p className="text-mint text-[10px] tracking-[0.3em] uppercase mb-1">AI Generator</p>
-          <h1 className="font-display font-bold text-2xl md:text-5xl">Карточки WB & Ozon</h1>
-        </div>
+      <div className="max-w-lg md:max-w-7xl mx-auto px-4 py-6">
+        <h1 className="font-display font-bold text-2xl md:text-4xl mb-6">AI-карточки WB & Ozon</h1>
 
         <div className="space-y-5">
-          <div>
-            <p className="text-[10px] text-muted uppercase tracking-wider mb-2">Исходник</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {products.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => { setSourceUrl(p.image); setResult(null); setPhase('idle') }}
-                  className={`flex-shrink-0 w-14 h-[4.5rem] rounded-lg overflow-hidden border-2 ${
-                    sourceUrl === p.image ? 'border-mint' : 'border-transparent'
-                  }`}
-                >
-                  <img src={p.image} alt={p.nameRu} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {products.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => { setSourceUrl(p.image); setResult(null); setPhase('idle') }}
+                className={`flex-shrink-0 w-14 h-[4.5rem] rounded-lg overflow-hidden border-2 ${
+                  sourceUrl === p.image ? 'border-mint' : 'border-transparent'
+                }`}
+              >
+                <img src={p.image} alt={p.nameRu} className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
 
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-          />
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            className="w-full py-2.5 glass rounded-xl text-sm text-muted"
-          >
-            📸 Загрузить фото
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+          <button type="button" onClick={() => fileRef.current?.click()} className="w-full py-2.5 glass rounded-xl text-sm text-muted">
+            📸 Загрузить фото упаковки
           </button>
 
           <div className="flex gap-2">
@@ -116,9 +103,7 @@ export default function AICardsPage() {
                 type="button"
                 onClick={() => setMarketplace(mp)}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium ${
-                  marketplace === mp
-                    ? mp === 'wb' ? 'bg-wb text-white' : 'bg-ozon text-white'
-                    : 'glass text-muted'
+                  marketplace === mp ? (mp === 'wb' ? 'bg-wb text-white' : 'bg-ozon text-white') : 'glass text-muted'
                 }`}
               >
                 {mp === 'wb' ? 'Wildberries' : 'Ozon'}
@@ -146,54 +131,89 @@ export default function AICardsPage() {
 
           {generating && (
             <div className="glass rounded-xl p-4">
+              <p className="text-xs text-mint mb-2">{phaseLabels[phase]}</p>
               <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
                 <div
-                  className="h-full bg-mint shimmer rounded-full transition-all"
-                  style={{ width: phase === 'bg-remove' ? '33%' : phase === 'infographic' ? '66%' : '90%' }}
+                  className="h-full bg-mint transition-all duration-500"
+                  style={{
+                    width: phase === 'bg-remove' ? '35%' : phase === 'infographic' ? '70%' : '95%',
+                  }}
                 />
               </div>
             </div>
           )}
 
-          {result && (
-            <div className="space-y-4">
-              <p className="text-[10px] text-muted uppercase tracking-wider">До → После</p>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl overflow-hidden border border-white/10">
-                  <p className="text-[9px] bg-white/10 px-2 py-1 text-muted">Исходник</p>
-                  {sourceUrl && <img src={sourceUrl} alt="До" className="w-full" />}
-                </div>
-                <div className="rounded-xl overflow-hidden border-2 border-mint/50 shadow-lg shadow-mint/10">
-                  <p className="text-[9px] bg-mint/20 px-2 py-1 text-mint">AI карточка</p>
-                  <img src={result.imageUrl} alt="После" className="w-full" />
-                </div>
-              </div>
-
-              <div className="glass rounded-xl p-4">
-                <p className="text-[10px] text-muted uppercase mb-2">SEO-описание</p>
-                <p className="text-xs leading-relaxed text-white/80">
-                  {typedText}
-                  {!typingDone && <span className="animate-pulse">|</span>}
+          <AnimatePresence mode="wait">
+            {(generating || result) && (
+              <motion.div
+                key={phase}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="space-y-3"
+              >
+                <p className="text-[10px] text-muted uppercase tracking-wider text-center">
+                  {showFull ? 'Готовая карточка' : 'Шаг 1: вырезка упаковки'}
                 </p>
-              </div>
 
-              <div className="flex gap-2">
-                <button type="button" onClick={handleDownload} className="flex-1 py-3 glass rounded-xl text-sm">
-                  ⬇ Скачать
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setToast('Опубликовано')
-                    setTimeout(() => setToast(''), 2500)
-                  }}
-                  className="flex-1 py-3 bg-mint/20 text-mint rounded-xl text-sm"
-                >
-                  🚀 Опубликовать
-                </button>
-              </div>
-            </div>
-          )}
+                <div className="flex justify-center gap-3 items-end">
+                  {showCropped && result?.croppedUrl && (
+                    <div className="w-[28%]">
+                      <p className="text-[9px] text-center text-muted mb-1">Баночка</p>
+                      <img src={result.croppedUrl} alt="Crop" className="w-full rounded-lg border border-white/20 bg-white" />
+                    </div>
+                  )}
+
+                  {showCropped && result?.croppedUrl && showFull && (
+                    <span className="text-mint text-2xl pb-8">→</span>
+                  )}
+
+                  {showFull && result?.imageUrl && (
+                    <div className="w-[58%]">
+                      <p className="text-[9px] text-center text-mint mb-1">Карточка {marketplace === 'wb' ? 'WB' : 'Ozon'}</p>
+                      <motion.img
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                        src={result.imageUrl}
+                        alt="Карточка"
+                        className="w-full rounded-lg shadow-2xl border-2 border-mint/40"
+                      />
+                    </div>
+                  )}
+
+                  {generating && phase === 'bg-remove' && !result && sourceUrl && (
+                    <div className="w-[40%]">
+                      <img src={sourceUrl} alt="Processing" className="w-full rounded-lg opacity-50 blur-sm" />
+                    </div>
+                  )}
+                </div>
+
+                {result && showFull && (
+                  <>
+                    <div className="glass rounded-xl p-4">
+                      <p className="text-[10px] text-muted uppercase mb-2">SEO-описание</p>
+                      <p className="text-xs leading-relaxed text-white/80">
+                        {typedText}
+                        {!typingDone && <span className="animate-pulse">|</span>}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button type="button" onClick={handleDownload} className="flex-1 py-3 glass rounded-xl text-sm">
+                        ⬇ Скачать
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setToast('Опубликовано'); setTimeout(() => setToast(''), 2500) }}
+                        className="flex-1 py-3 bg-mint/20 text-mint rounded-xl text-sm"
+                      >
+                        🚀 Опубликовать
+                      </button>
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

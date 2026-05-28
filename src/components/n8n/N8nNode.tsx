@@ -1,41 +1,51 @@
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
+import { workflowNodeDetails } from '../../data/workflowTree'
 
 interface N8nNodeData {
-  label: string
-  icon: string
-  color: string
-  active?: boolean
-  payload?: object
+  nodeId: string
+  selected?: boolean
+  completed?: boolean
 }
 
 function N8nNode({ data }: NodeProps) {
   const d = data as unknown as N8nNodeData
-  const active = d.active
+  const info = workflowNodeDetails[d.nodeId]
+  if (!info) return null
+
+  const selected = d.selected
+  const completed = d.completed
 
   return (
     <div
-      className={`rounded-lg overflow-hidden min-w-[180px] transition-all duration-300 ${
-        active ? 'ring-2 ring-mint shadow-lg shadow-mint/20 scale-105' : ''
+      className={`rounded-xl overflow-hidden min-w-[140px] max-w-[160px] cursor-pointer transition-all duration-200 border-2 ${
+        selected
+          ? 'border-mint shadow-lg shadow-mint/30 scale-105'
+          : completed
+            ? 'border-mint/40'
+            : 'border-transparent'
       }`}
       style={{ background: '#2d2d3a' }}
     >
-      <Handle type="target" position={Position.Left} className="!bg-gray-500 !w-2 !h-2" />
+      <Handle type="target" position={Position.Top} className="!bg-gray-500 !w-2 !h-2 !border-0" />
       <div className="flex items-stretch">
-        <div className="w-1.5 flex-shrink-0" style={{ background: d.color }} />
-        <div className="flex-1 px-3 py-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-base">{d.icon}</span>
-            <span className="text-xs font-medium text-white/90 leading-tight">{d.label}</span>
+        <div className="w-1.5 flex-shrink-0" style={{ background: info.color }} />
+        <div className="flex-1 px-2.5 py-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm">{info.icon}</span>
+            <span className="text-[10px] font-medium text-white/90 leading-tight line-clamp-2">
+              {info.label}
+            </span>
           </div>
-          {active && d.payload && (
-            <pre className="mt-2 text-[9px] text-mint/80 bg-black/30 rounded p-1.5 overflow-hidden max-h-16 leading-tight">
-              {JSON.stringify(d.payload, null, 0).slice(0, 120)}…
-            </pre>
+          {info.kind === 'decision' && (
+            <span className="text-[8px] text-gold mt-1 block">◇ решение</span>
+          )}
+          {completed && !selected && (
+            <span className="text-[8px] text-mint mt-0.5 block">✓</span>
           )}
         </div>
       </div>
-      <Handle type="source" position={Position.Right} className="!bg-gray-500 !w-2 !h-2" />
+      <Handle type="source" position={Position.Bottom} className="!bg-gray-500 !w-2 !h-2 !border-0" />
     </div>
   )
 }

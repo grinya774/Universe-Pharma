@@ -1,11 +1,12 @@
 import type { Product } from '../lib/products'
+import { SURVEY_START_BUTTON } from './telegramSurvey'
 
 export type MessageType = 'text' | 'product' | 'giveaway' | 'buttons'
 
 export interface BotButton {
   label: string
   emoji?: string
-  action?: 'menu' | 'scenario'
+  action?: 'menu' | 'scenario' | 'survey' | 'survey-answer'
 }
 
 export interface BotMessage {
@@ -13,6 +14,7 @@ export interface BotMessage {
   type: MessageType
   text?: string
   product?: Product
+  productId?: string
   marketplace?: 'wb' | 'ozon'
   price?: string
   buttons?: BotButton[]
@@ -31,14 +33,15 @@ export const botIntro = {
 export const MENU_BUTTON: BotButton = { label: '◀️ Главное меню', action: 'menu' }
 
 export const quickReplies: BotButton[] = [
+  SURVEY_START_BUTTON,
   { label: '💊 Подборка', action: 'scenario' },
   { label: '🛒 Ozon', action: 'scenario' },
   { label: '🟣 WB', action: 'scenario' },
-  { label: '🎁 Розыгрыш', action: 'scenario' },
 ]
 
 function withMenu(buttons: BotButton[]): BotButton[] {
-  return [...buttons, MENU_BUTTON]
+  const filtered = buttons.filter((b) => b.action !== 'menu')
+  return [...filtered, MENU_BUTTON]
 }
 
 export const demoScenarios: Record<string, BotMessage[]> = {
@@ -46,7 +49,7 @@ export const demoScenarios: Record<string, BotMessage[]> = {
     {
       id: 'welcome',
       type: 'text',
-      text: '👋 Добро пожаловать в Universe Pharma!\n\nТурецкое производство с премиальным сырьём. Постоянный контроль качества — независимые исследования.\n\nВыберите раздел:',
+      text: '👋 Добро пожаловать в Universe Pharma!\n\nТурецкое производство с премиальным сырьём. Постоянный контроль качества.\n\nВыберите раздел:',
       delay: 0,
       buttons: quickReplies,
     },
@@ -55,12 +58,13 @@ export const demoScenarios: Record<string, BotMessage[]> = {
     {
       id: 'vit-pick',
       type: 'text',
-      text: '🌿 Подборка на сегодня:\n\n• Иммунитет → Омега-3\n• Энергия → Iroton железо\n• Красота → Коллаген\n• Сон → Магний 5-в-1',
+      text: '🌿 Подборка на сегодня:\n\n• Иммунитет → Омега-3\n• Энергия → Iroton\n• Красота → Коллаген\n• Сон → Магний',
       delay: 800,
     },
     {
       id: 'vit-product-1',
       type: 'product',
+      productId: 'iron',
       text: '⭐ Хит продаж:',
       marketplace: 'ozon',
       price: '1 260 ₽',
@@ -69,7 +73,7 @@ export const demoScenarios: Record<string, BotMessage[]> = {
     {
       id: 'vit-cta',
       type: 'text',
-      text: '💡 Без диоксида титана. GMP, HALAL. Made in Türkiye.',
+      text: '💡 GMP, HALAL. Made in Türkiye.',
       delay: 1000,
       buttons: withMenu([
         { label: '🛒 Ozon', action: 'scenario' },
@@ -81,12 +85,13 @@ export const demoScenarios: Record<string, BotMessage[]> = {
     {
       id: 'ozon-intro',
       type: 'text',
-      text: '🛒 Топ на Ozon:\n\n1️⃣ Цинк — 4.8★\n2️⃣ Омега-3 — 4.7★\n3️⃣ D3+K2 — 4.9★\n\nДоставка от 500 ₽',
+      text: '🛒 Топ на Ozon:\n\n1️⃣ Цинк — 4.8★\n2️⃣ Омега-3 — 4.7★\n3️⃣ D3+K2 — 4.9★',
       delay: 800,
     },
     {
       id: 'ozon-product',
       type: 'product',
+      productId: 'zinc',
       marketplace: 'ozon',
       price: '1 260 ₽',
       delay: 1000,
@@ -94,21 +99,22 @@ export const demoScenarios: Record<string, BotMessage[]> = {
     {
       id: 'ozon-link',
       type: 'text',
-      text: '🔗 Промокод UNIVERSE10 для подписчиков @universepharma',
+      text: '🔗 Промокод UNIVERSE10 для @universepharma',
       delay: 800,
-      buttons: withMenu([{ label: 'Открыть Ozon', action: 'scenario' }]),
+      buttons: withMenu([{ label: '🛒 Ozon', action: 'scenario' }]),
     },
   ],
   wb: [
     {
       id: 'wb-intro',
       type: 'text',
-      text: '🟣 Топ на Wildberries:\n\n• Iroton — от 890 ₽\n• Коллаген — от 980 ₽\n• Магний — от 1 100 ₽\n\nДоставка 1–2 дня',
+      text: '🟣 Топ на WB:\n\n• Iroton — от 890 ₽\n• Коллаген — от 980 ₽\n• Магний — от 1 100 ₽',
       delay: 800,
     },
     {
       id: 'wb-product',
       type: 'product',
+      productId: 'iron',
       marketplace: 'wb',
       price: '890 ₽',
       delay: 1000,
@@ -116,54 +122,28 @@ export const demoScenarios: Record<string, BotMessage[]> = {
     {
       id: 'wb-link',
       type: 'text',
-      text: '📦 Подпишитесь на @universepharma — эксклюзивные акции',
+      text: '📦 Подпишитесь на @universepharma',
       delay: 800,
-      buttons: withMenu([{ label: 'Открыть WB', action: 'scenario' }]),
-    },
-  ],
-  giveaway: [
-    {
-      id: 'giveaway-announce',
-      type: 'giveaway',
-      text: '🎁 РОЗЫГРЫШ\n\n🏆 Набор 5 SKU\n🥈 Омега-3 + Цинк\n🥉 Магний\n\n✅ Подписка @universepharma\n✅ Нажать «Участвую»',
-      delay: 800,
-    },
-    {
-      id: 'giveaway-timer',
-      type: 'text',
-      text: '⏰ Итоги через 48 ч в канале @universepharma',
-      delay: 1200,
-      buttons: withMenu([
-        { label: 'Участвую 🎉', action: 'scenario' },
-        { label: 'Подписаться', action: 'scenario' },
-      ]),
+      buttons: withMenu([{ label: '🟣 WB', action: 'scenario' }]),
     },
   ],
 }
 
 export const userMessages: Record<string, string> = {
-  '💊 Подборка': '💊 Подборка витаминов',
-  'Подборка витаминов': '💊 Подборка витаминов',
+  '🩺 Подбор по симптомам': '🩺 Подбор по симптомам',
+  '💊 Подборка': '💊 Подборка',
   '🛒 Ozon': '🛒 Ozon',
-  'Что заказать на Ozon?': '🛒 Ozon',
-  'Открыть Ozon': '🛒 Ozon',
   '🟣 WB': '🟣 WB',
-  'Что заказать на WB?': '🟣 WB',
-  'Открыть WB': '🟣 WB',
-  'Открыть Wildberries': '🟣 WB',
-  '🎁 Розыгрыш': '🎁 Розыгрыш',
-  'Розыгрыш для подписчиков': '🎁 Розыгрыш',
-  'Участвую 🎉': 'Участвую!',
-  'Участвую! 🎉': 'Участвую!',
-  'Подписаться': 'Подписаться на канал',
+  '✅ Да': 'Да',
+  '❌ Нет': 'Нет',
   '◀️ Главное меню': '◀️ Главное меню',
 }
 
-export function getScenarioKey(buttonLabel: string): string | 'menu' {
+export function getScenarioKey(buttonLabel: string): string | 'menu' | 'survey' {
   if (buttonLabel.includes('Главное меню') || buttonLabel.includes('Меню')) return 'menu'
+  if (buttonLabel.includes('симптом') || buttonLabel.includes('🩺')) return 'survey'
   if (buttonLabel.includes('Подборка') || buttonLabel.includes('витамин')) return 'vitamins'
-  if (buttonLabel.includes('Ozon') || buttonLabel.includes('ozon') || buttonLabel.includes('🛒')) return 'ozon'
-  if (buttonLabel.includes('WB') || buttonLabel.includes('Wildberries') || buttonLabel.includes('🟣')) return 'wb'
-  if (buttonLabel.includes('Розыгрыш') || buttonLabel.includes('Участвую') || buttonLabel.includes('🎁')) return 'giveaway'
+  if (buttonLabel.includes('Ozon') || buttonLabel.includes('🛒')) return 'ozon'
+  if (buttonLabel.includes('WB') || buttonLabel.includes('🟣')) return 'wb'
   return 'start'
 }
