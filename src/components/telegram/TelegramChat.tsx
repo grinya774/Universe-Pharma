@@ -27,7 +27,7 @@ export default function TelegramChat({ autoPlay = true }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const timeoutsRef = useRef<number[]>([])
 
-  const featuredProduct = products[0]
+  const featuredProduct = products.find((p) => p.id === 'iron') ?? products[0]
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {

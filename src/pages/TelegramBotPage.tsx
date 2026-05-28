@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import Nav from '../components/Nav'
+import PageShell from '../components/PageShell'
 import IPhoneFrame from '../components/telegram/IPhoneFrame'
 import TelegramChat from '../components/telegram/TelegramChat'
 import { botIntro } from '../data/telegramBot'
@@ -8,116 +7,62 @@ import { botIntro } from '../data/telegramBot'
 export default function TelegramBotPage() {
   const [chatKey, setChatKey] = useState(0)
 
-  const restartDemo = () => setChatKey((k) => k + 1)
-
   return (
-    <div className="min-h-screen pt-16 gradient-mesh">
-      <Nav />
-
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left: description */}
+    <PageShell noPadding className="flex flex-col !pb-0 md:!pb-0">
+      {/* Mobile: нативный полноэкранный Telegram */}
+      <div className="md:hidden flex flex-col flex-1 min-h-0 bg-[#0e1621]">
+        <div className="flex items-center justify-between px-4 py-2 bg-[#17212b] border-b border-white/5 flex-shrink-0 pt-[env(safe-area-inset-top)]">
           <div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-mint text-sm tracking-[0.3em] uppercase mb-4"
-            >
-              Telegram Bot
-            </motion.p>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="font-display font-bold text-4xl md:text-5xl mb-6 leading-tight"
-            >
+            <p className="text-white text-sm font-medium">Universe Pharma Bot</p>
+            <p className="text-[#6ab2f2] text-[10px]">@universepharma • demo</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setChatKey((k) => k + 1)}
+            className="text-xs bg-[#2AABEE] text-white px-3 py-1.5 rounded-full"
+          >
+            ↺ Сброс
+          </button>
+        </div>
+        <div className="flex-1 min-h-0">
+          <TelegramChat key={`m-${chatKey}`} autoPlay />
+        </div>
+      </div>
+
+      {/* Desktop: описание + iPhone mockup */}
+      <div className="hidden md:block px-6 py-12 gradient-mesh flex-1">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="text-mint text-sm tracking-[0.3em] uppercase mb-4">Telegram Bot</p>
+            <h1 className="font-display font-bold text-4xl md:text-5xl mb-6 leading-tight">
               Бот для подписчиков<br />
               <span className="text-mint">@universepharma</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-muted leading-relaxed mb-8 max-w-lg"
-            >
+            </h1>
+            <p className="text-muted leading-relaxed mb-8 max-w-lg">
               {botIntro.tagline}. Бот советует витамины, направляет на Ozon и Wildberries,
-              проводит розыгрыши среди {botIntro.subscribers} подписчиков канала{' '}
-              <a
-                href={botIntro.channelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#6ab2f2] hover:underline"
-              >
+              проводит розыгрыши среди {botIntro.subscribers} подписчиков{' '}
+              <a href={botIntro.channelUrl} target="_blank" rel="noopener noreferrer" className="text-[#6ab2f2]">
                 {botIntro.channel}
               </a>
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-4 mb-8"
-            >
-              {[
-                { icon: '💊', title: 'Подборка витаминов', desc: 'Персональные рекомендации по SKU' },
-                { icon: '🛒', title: 'Ozon & Wildberries', desc: 'Ссылки на товары с ценами и отзывами' },
-                { icon: '🎁', title: 'Розыгрыши', desc: 'Призы для подписчиков канала каждую неделю' },
-                { icon: '🔔', title: 'Напоминания', desc: 'О приёме БАДов и новых акциях' },
-              ].map((f, i) => (
-                <div key={i} className="flex items-start gap-4 glass rounded-xl p-4">
-                  <span className="text-2xl">{f.icon}</span>
-                  <div>
-                    <p className="font-medium text-sm">{f.title}</p>
-                    <p className="text-xs text-muted">{f.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-
+            </p>
             <button
-              onClick={restartDemo}
-              className="px-6 py-3 bg-[#2AABEE] text-white font-semibold rounded-full hover:bg-[#229ED9] transition-colors"
+              type="button"
+              onClick={() => setChatKey((k) => k + 1)}
+              className="px-6 py-3 bg-[#2AABEE] text-white font-semibold rounded-full"
             >
               ▶ Перезапустить демо
             </button>
           </div>
-
-          {/* Right: iPhone mockup */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
-            className="flex justify-center lg:justify-end"
-          >
+          <div className="flex justify-center lg:justify-end">
             <div className="relative">
               <div className="absolute -inset-8 bg-[#2AABEE]/10 rounded-full blur-3xl" />
               <IPhoneFrame>
-                <TelegramChat key={chatKey} autoPlay />
+                <TelegramChat key={`d-${chatKey}`} autoPlay />
               </IPhoneFrame>
             </div>
-          </motion.div>
+          </div>
         </div>
-
-        {/* Stats bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6"
-        >
-          {[
-            { val: '205+', label: 'Подписчиков канала' },
-            { val: '4', label: 'Сценария бота' },
-            { val: 'WB + Ozon', label: 'Интеграция маркетплейсов' },
-            { val: '24/7', label: 'Автоответы' },
-          ].map((s) => (
-            <div key={s.label} className="glass rounded-2xl p-6 text-center">
-              <p className="font-display font-bold text-2xl text-mint mb-1">{s.val}</p>
-              <p className="text-xs text-muted">{s.label}</p>
-            </div>
-          ))}
-        </motion.div>
       </div>
-    </div>
+    </PageShell>
   )
 }

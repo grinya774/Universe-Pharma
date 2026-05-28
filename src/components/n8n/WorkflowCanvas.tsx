@@ -78,7 +78,8 @@ export default function WorkflowCanvas({ running, onComplete }: Props) {
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
+        fitViewOptions={{ padding: 0.1 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.35 }}
         proOptions={{ hideAttribution: true }}
         panOnDrag
         zoomOnScroll

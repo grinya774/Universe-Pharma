@@ -1,109 +1,83 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import Nav from '../components/Nav'
+import PageShell from '../components/PageShell'
 import Marquee from '../components/Marquee'
 import ProductCard from '../components/ProductCard'
 import { products } from '../lib/products'
+import { photos } from '../lib/photos'
 
 const categories = [
-  { name: 'Probiyotikler', desc: 'Пробиотики и пребиотики', icon: '🦠' },
-  { name: 'Vitamin', desc: 'Витаминные комплексы', icon: '💊' },
-  { name: 'Bağışıklık', desc: 'Поддержка иммунитета', icon: '🛡️' },
-  { name: 'Erkek Sağlığı', desc: 'Мужское здоровье', icon: '💪' },
+  { name: 'Vitamin', desc: 'Витамины и минералы', icon: '💊' },
+  { name: 'Bağışıklık', desc: 'Иммунитет', icon: '🛡️' },
   { name: 'Cilt & Kozmetik', desc: 'Кожа и красота', icon: '✨' },
-  { name: 'İç Sağlık', desc: 'Внутреннее здоровье', icon: '❤️' },
+  { name: 'Erkek Sağlığı', desc: 'Мужское здоровье', icon: '💪' },
 ]
 
 export default function HomePage() {
   const heroRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80])
 
   return (
-    <div className="min-h-screen">
-      <Nav />
+    <PageShell className="!pb-[calc(4rem+env(safe-area-inset-bottom))] md:!pb-0">
+      {/* Hero — mobile first */}
+      <section ref={heroRef} className="relative min-h-[85dvh] flex flex-col justify-center gradient-mesh overflow-hidden px-4">
+        <motion.div style={{ y: heroY }} className="w-full max-w-lg mx-auto text-center">
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-mint text-[10px] md:text-sm tracking-[0.25em] uppercase mb-4"
+          >
+            Turkish Supplements • Istanbul
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="font-display font-bold text-[2rem] leading-[1.05] md:text-7xl mb-4"
+          >
+            Engineered in <span className="text-mint">Istanbul</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-muted text-sm md:text-lg mb-6 leading-relaxed px-2"
+          >
+            Премиальные БАДы на Wildberries и Ozon. GMP, HALAL.
+          </motion.p>
 
-      {/* Hero */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center gradient-mesh overflow-hidden pt-16">
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-12 items-center w-full">
-          <div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-mint text-sm tracking-[0.4em] uppercase mb-6"
-            >
-              Turkish Supplements • Since Istanbul
-            </motion.p>
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="font-display font-bold text-5xl md:text-7xl leading-[0.95] mb-8"
-            >
-              Engineered<br />
-              in <span className="text-mint">Istanbul</span>.<br />
-              Sold on WB & Ozon.
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="text-muted text-lg max-w-md mb-10 leading-relaxed"
-            >
-              Премиальные БАДы турецкого производства. GMP, HALAL, без диоксида титана.
-              150+ SKU на маркетплейсах России.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="flex flex-wrap gap-4"
-            >
-              <Link to="/automation" className="px-8 py-3 bg-mint text-bg font-semibold rounded-full hover:bg-mint/90 transition-colors">
-                Автоматизация завода
-              </Link>
-              <Link to="/ai-cards" className="px-8 py-3 glass rounded-full hover:bg-white/10 transition-colors">
-                AI-карточки →
-              </Link>
-              <Link to="/telegram-bot" className="px-8 py-3 glass rounded-full hover:bg-white/10 transition-colors border border-[#2AABEE]/30 text-[#6ab2f2]">
-                Telegram Bot →
-              </Link>
-            </motion.div>
-          </div>
+          {/* Hero product — real WB/Ozon card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className="relative mx-auto w-[72%] max-w-[280px] mb-6"
+          >
+            <div className="absolute -inset-4 bg-mint/15 rounded-3xl blur-2xl" />
+            <img
+              src={photos.zinc}
+              alt="Universe Pharma"
+              className="relative w-full rounded-2xl shadow-2xl border border-white/10"
+            />
+          </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ delay: 0.5, duration: 0.8, type: 'spring' }}
-            className="relative flex justify-center"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:justify-center"
           >
-            <div className="absolute inset-0 bg-mint/10 rounded-full blur-3xl scale-75" />
-            <motion.img
-              animate={{ y: [0, -15, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-              src={products[0].image}
-              alt="Multibiotic"
-              className="relative w-72 md:w-96 drop-shadow-2xl rounded-2xl"
-            />
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut', delay: 0.5 }}
-              className="absolute -right-4 top-10 glass rounded-xl p-3 text-xs"
-            >
-              <span className="text-mint font-bold">50 млрд КОЕ</span>
-              <br />18 штаммов
-            </motion.div>
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut', delay: 1 }}
-              className="absolute -left-4 bottom-20 glass rounded-xl p-3 text-xs"
-            >
-              <span className="text-gold font-bold">GMP • HALAL</span>
-              <br />Made in Turkey
-            </motion.div>
+            <Link to="/ai-cards" className="px-6 py-3 bg-mint text-bg font-semibold rounded-full text-sm text-center">
+              AI-карточки
+            </Link>
+            <Link to="/telegram-bot" className="px-6 py-3 glass rounded-full text-sm text-center border border-[#2AABEE]/40 text-[#6ab2f2]">
+              Telegram Bot
+            </Link>
+            <Link to="/automation" className="px-6 py-3 glass rounded-full text-sm text-center hidden sm:block">
+              Автоматизация
+            </Link>
           </motion.div>
         </motion.div>
       </section>
@@ -111,65 +85,38 @@ export default function HomePage() {
       <Marquee />
 
       {/* About */}
-      <section className="py-32 px-6">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
-            <p className="text-mint text-sm tracking-[0.3em] uppercase mb-4">О бренде</p>
-            <h2 className="font-display font-bold text-4xl md:text-5xl mb-6 leading-tight">
-              Завод в Esenyurt,<br />офис в Казани
-            </h2>
-            <p className="text-muted leading-relaxed mb-6">
-              Universe Pharma — турецкий производитель БАДов премиум-класса. Завод в Стамбуле
-              (Esenyurt), представительство в России (Казань). Продукты без диоксида титана,
-              ГМО и вредных добавок.
-            </p>
-            <div className="grid grid-cols-3 gap-6">
-              {[
-                { val: '150+', label: 'SKU' },
-                { val: 'GMP', label: 'Сертификат' },
-                { val: '2', label: 'Маркетплейса' },
-              ].map((s) => (
-                <div key={s.label}>
-                  <p className="font-display font-bold text-3xl text-mint">{s.val}</p>
-                  <p className="text-xs text-muted uppercase tracking-wider">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="glass rounded-3xl p-8 aspect-video flex items-center justify-center relative overflow-hidden"
-          >
-            <div className="absolute inset-0 gradient-mesh" />
-            <div className="relative text-center">
-              <p className="font-display text-6xl font-bold text-mint/30">TR</p>
-              <p className="text-sm text-muted mt-2">Gökevler Mah. Esenyurt/İstanbul</p>
-            </div>
-          </motion.div>
+      <section className="py-12 md:py-24 px-4">
+        <div className="max-w-lg md:max-w-7xl mx-auto">
+          <p className="text-mint text-[10px] tracking-[0.3em] uppercase mb-2">О бренде</p>
+          <h2 className="font-display font-bold text-2xl md:text-5xl mb-4 leading-tight">
+            Завод в Esenyurt, офис в Казани
+          </h2>
+          <p className="text-muted text-sm leading-relaxed mb-6">
+            Universe Pharma — турецкий производитель БАДов. Без диоксида титана, ГМО и вредных добавок.
+          </p>
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { val: '150+', label: 'SKU' },
+              { val: 'GMP', label: 'Сертификат' },
+              { val: 'WB+Ozon', label: 'МП' },
+            ].map((s) => (
+              <div key={s.label} className="glass rounded-xl p-3 text-center">
+                <p className="font-display font-bold text-lg md:text-3xl text-mint">{s.val}</p>
+                <p className="text-[9px] md:text-xs text-muted uppercase">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Products horizontal scroll */}
-      <section className="py-32 bg-surface">
-        <div className="max-w-7xl mx-auto px-6 mb-12">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-display font-bold text-4xl md:text-5xl"
-          >
-            Наша линейка
-          </motion.h2>
+      {/* Products — snap scroll */}
+      <section className="py-12 md:py-24 bg-surface">
+        <div className="px-4 mb-6">
+          <h2 className="font-display font-bold text-2xl md:text-5xl">Карточки WB & Ozon</h2>
+          <p className="text-muted text-sm mt-1">Реальные инфографики товаров</p>
         </div>
-        <div className="overflow-x-auto pb-8 px-6">
-          <div className="flex gap-6 max-w-none w-max mx-auto px-6">
+        <div className="overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+          <div className="flex gap-4 px-4 w-max">
             {products.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}
@@ -177,90 +124,79 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Marketplaces */}
-      <section className="py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-display font-bold text-4xl md:text-5xl mb-16 text-center"
-          >
-            Маркетплейсы
-          </motion.h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              { name: 'Wildberries', color: '#CB11AB', metrics: [{ l: 'Карточек', v: '87' }, { l: 'CTR', v: '4.8%' }, { l: 'Отзывы', v: '4.7★' }] },
-              { name: 'Ozon', color: '#005BFF', metrics: [{ l: 'Карточек', v: '63' }, { l: 'CTR', v: '3.9%' }, { l: 'Отзывы', v: '4.6★' }] },
-            ].map((mp, i) => (
-              <motion.div
-                key={mp.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="glass rounded-3xl p-8"
-              >
-                <h3 className="font-display font-bold text-2xl mb-6" style={{ color: mp.color }}>{mp.name}</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  {mp.metrics.map((m) => (
-                    <div key={m.l}>
-                      <p className="font-display font-bold text-2xl">{m.v}</p>
-                      <p className="text-xs text-muted">{m.l}</p>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
+      {/* Marketplace showcase with photos */}
+      <section className="py-12 md:py-24 px-4">
+        <div className="max-w-lg md:max-w-7xl mx-auto">
+          <h2 className="font-display font-bold text-2xl md:text-5xl mb-8 text-center">Маркетплейсы</h2>
+
+          <div className="space-y-8">
+            <div>
+              <h3 className="font-display font-bold text-xl mb-4" style={{ color: '#CB11AB' }}>
+                Wildberries
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {[photos.iron, photos.omega, photos.collagen, photos.magnesiumLipo].map((src, i) => (
+                  <motion.img
+                    key={i}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    src={src}
+                    alt="WB"
+                    className="w-full rounded-xl border border-white/10 shadow-lg"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-display font-bold text-xl mb-4" style={{ color: '#005BFF' }}>
+                Ozon
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {[photos.zinc, photos.magnesium, photos.d3k2, photos.omega].map((src, i) => (
+                  <motion.img
+                    key={i}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    src={src}
+                    alt="Ozon"
+                    className="w-full rounded-xl border border-white/10 shadow-lg"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="py-32 px-6 bg-surface">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-display font-bold text-4xl mb-16"
-          >
-            Категории
-          </motion.h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((cat, i) => (
-              <motion.div
-                key={cat.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -4 }}
-                className="glass rounded-2xl p-6 cursor-pointer hover:border-mint/30 transition-colors"
-              >
-                <span className="text-3xl mb-4 block">{cat.icon}</span>
-                <h3 className="font-display font-semibold text-lg mb-1">{cat.name}</h3>
-                <p className="text-sm text-muted">{cat.desc}</p>
-              </motion.div>
+      <section className="py-12 md:py-24 px-4 bg-surface">
+        <div className="max-w-lg md:max-w-7xl mx-auto">
+          <h2 className="font-display font-bold text-2xl mb-6">Категории</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {categories.map((cat) => (
+              <div key={cat.name} className="glass rounded-xl p-4">
+                <span className="text-2xl mb-2 block">{cat.icon}</span>
+                <h3 className="font-display font-semibold text-sm">{cat.name}</h3>
+                <p className="text-[11px] text-muted">{cat.desc}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-16 px-6 border-t border-white/10">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
-          <div>
-            <p className="font-display font-bold text-xl mb-2">UNIVERSE PHARMA</p>
-            <p className="text-sm text-muted">Turkish supplements for Russian marketplaces</p>
-          </div>
-          <div className="text-sm text-muted space-y-1">
-            <p>info@universepharma.ru</p>
-            <p>+7 (843) 245 62 00</p>
-            <p>Esenyurt, Istanbul / Kazan, Russia</p>
-          </div>
+      <footer className="py-10 px-4 border-t border-white/10 text-center md:text-left">
+        <div className="max-w-lg md:max-w-7xl mx-auto">
+          <p className="font-display font-bold mb-2">UNIVERSE PHARMA</p>
+          <p className="text-xs text-muted">info@universepharma.ru • +7 (843) 245 62 00</p>
         </div>
       </footer>
-    </div>
+    </PageShell>
   )
 }
