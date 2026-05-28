@@ -68,6 +68,9 @@ export default function HomePage() {
               <Link to="/ai-cards" className="px-8 py-3 glass rounded-full hover:bg-white/10 transition-colors">
                 AI-карточки →
               </Link>
+              <Link to="/telegram-bot" className="px-8 py-3 glass rounded-full hover:bg-white/10 transition-colors border border-[#2AABEE]/30 text-[#6ab2f2]">
+                Telegram Bot →
+              </Link>
             </motion.div>
           </div>
 

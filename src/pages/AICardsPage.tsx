@@ -19,6 +19,7 @@ export default function AICardsPage() {
   const [phase, setPhase] = useState<GenerationPhase>('idle')
   const [result, setResult] = useState<Awaited<ReturnType<typeof generateCard>> | null>(null)
   const [typedText, setTypedText] = useState('')
+  const [typingDone, setTypingDone] = useState(false)
   const [toast, setToast] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -39,11 +40,15 @@ export default function AICardsPage() {
 
   const typeText = (text: string) => {
     setTypedText('')
+    setTypingDone(false)
     let i = 0
     const interval = setInterval(() => {
       setTypedText(text.slice(0, i))
       i++
-      if (i > text.length) clearInterval(interval)
+      if (i > text.length) {
+        clearInterval(interval)
+        setTypingDone(true)
+      }
     }, 15)
   }
 
@@ -293,7 +298,10 @@ export default function AICardsPage() {
                 {/* Description */}
                 <div className="glass rounded-2xl p-6">
                   <p className="text-xs text-muted uppercase tracking-wider mb-3">SEO-описание</p>
-                  <p className="text-sm leading-relaxed text-white/80">{typedText}<span className="animate-pulse">|</span></p>
+                  <p className="text-sm leading-relaxed text-white/80">
+                    {typedText}
+                    {!typingDone && <span className="animate-pulse">|</span>}
+                  </p>
                 </div>
 
                 {/* Actions */}

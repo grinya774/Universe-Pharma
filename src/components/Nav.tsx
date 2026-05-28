@@ -4,6 +4,7 @@ const links = [
   { to: '/', label: 'Главная' },
   { to: '/automation', label: 'Автоматизация' },
   { to: '/ai-cards', label: 'AI Карточки' },
+  { to: '/telegram-bot', label: 'Telegram Bot' },
 ]
 
 export default function Nav() {
